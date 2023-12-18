@@ -67,6 +67,7 @@ INTERVAL vval;
 %union {
 	AbstractASTNode* ast;
     char* str;
+    double dbl;
 }
 %locations
 %define parse.error verbose
@@ -528,6 +529,9 @@ Exp:
     | INT {
         $$ = new LiteralASTNode($1);
     }
+    | DOUBLE {
+        $$ = new LiteralASTNode($1, LiteralType::Double);
+    }
     | STAR ID {
         AbstractASTNode* op = new OperatorASTNode((char*)"*", opType::GetValue);
         AbstractASTNode* var = new VarASTNode((char*)$2);
@@ -536,16 +540,20 @@ Exp:
     }
     | error RP { yyerrok; }
     ;
-        | DOUBLE {
-        $$ = new LiteralASTNode($1, LiteralType::Double);
-    }
-    ;
+
 Args: Args COMMA Exp {
         $1->getLastPeerNode()->addPeerNode($3);
         $$ = $1;
     }
     | Exp {
         $$ = $1;
+    }
+    ;
+Number: INT {
+        $$ = new LiteralASTNode(atoi($1), $1, LiteralType::Int);
+    }
+    | DOUBLE {
+        $$ = new LiteralASTNode(yylval.dbl, $1, LiteralType::Double);
     }
     ;
 

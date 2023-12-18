@@ -17,6 +17,7 @@ void yyerror(const char *str);
 D   [0-9]
 L   [a-zA-Z_]
 E   [Ee][+-]?{D}+
+F   [0-9]*\.{D}+|[0-9]+\.({D}+)?([Ee][+-]?{D}+)?
 delim [ \t\n]
 ws    {delim}+
 
@@ -29,6 +30,7 @@ ws    {delim}+
  /* C++ comment, a common extension */
 "//".*\n
 "int"                             { yylval.str=strdup(yytext); return(TYPE); }
+"double"                          { yylval.str = strdup(yytext); return TYPE; } // 添加对double的匹配
 "void"                            { yylval.str=strdup(yytext); return(TYPE);}
 "main"                            { yylval.str=strdup(yytext); return(ID);}
 "return"                          { return(RETURN); }
@@ -60,6 +62,7 @@ ws    {delim}+
 "."                               { return(GETMEMBER); }
 {L}({D}|{L})*                     { yylval.str=strdup(yytext); return(ID); }
 {D}{L}({D}|{L})*                  { return (ERRID); }
+{F}                               { yylval.str = strdup(yytext); return DOUBLE; } // 新增匹配实型数字的规则
 [ \t\v\f\r\n]                     { }
 (([1-9]|-){D}*)|0                     { yylval.str=strdup(yytext); return(INT);}
 %%
